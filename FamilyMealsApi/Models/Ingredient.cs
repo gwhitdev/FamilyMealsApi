@@ -1,6 +1,8 @@
-﻿using MongoDB.Bson;
+﻿#nullable enable
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
+using System.Collections.Generic;
 
 namespace FamilyMealsApi.Models
 {
@@ -8,10 +10,10 @@ namespace FamilyMealsApi.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string? Id { get; internal set; }
 
         [BsonElement("Details")]
-        public Details Details { get; set; }
+        public Details? Details { get; set; }
 
         [BsonDateTimeOptions(Kind=DateTimeKind.Local)]
         [BsonElement("createdAt")]
@@ -21,7 +23,7 @@ namespace FamilyMealsApi.Models
         {
             get => _CreatedAt;
             
-            set 
+            internal set 
             {
                 if (CreatedAt > DateTime.Now)
                 {
@@ -36,7 +38,7 @@ namespace FamilyMealsApi.Models
 
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         [BsonElement("updatedAt")]
-        public DateTime UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; internal set; }
 
         [BsonElement("__v")]
         public int __v { get;}
@@ -47,16 +49,16 @@ namespace FamilyMealsApi.Models
     public class Details
     {
         [BsonElement("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [BsonElement("quantity")]
         public double Quantity { get; set; }
 
         [BsonElement("quantityType")]
-        public string QuantityType { get; set; }
+        public string? QuantityType { get; set; }
 
         [BsonElement("keptAt")]
-        public string KeptAt { get; set; }
+        public string? KeptAt { get; set; }
 
         [BsonElement("useByDate")]
         public DateTime UseByDate { get; set; }

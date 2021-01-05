@@ -2,9 +2,9 @@
 using MongoDB.Driver;
 using FamilyMealsApi.Models;
 using System.Collections.Generic;
-using static System.Console;
 using MongoDB.Bson;
 using System;
+using static System.Console;
 
 namespace FamilyMealsApi.Services
 {
@@ -16,7 +16,6 @@ namespace FamilyMealsApi.Services
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
-
             _ingredients = database.GetCollection<Ingredient>(settings.IngredientsCollectionName);
         }
 
@@ -25,18 +24,18 @@ namespace FamilyMealsApi.Services
             var result = _ingredients.Find(ingredient => true).ToList();
             if (result.Count > 0)
             {
+                foreach (var item in result)
+                {
+                    WriteLine(item.Details.Name);
+                }
                 return result;
             }
             else
             {
                 return null;
-                
-                
             }
-           
         }
             
-
         public Ingredient GetById(string id)
         {
             if (ObjectId.TryParse(id, out _))
@@ -56,38 +55,27 @@ namespace FamilyMealsApi.Services
                 WriteLine("The ID provided is not a valid ObjectID.");
                 return null;
             }
-            
-                
-            
         }
             
-
-        public IEnumerable<Ingredient> GetIngredientsByName(string name)
+        public List<Ingredient> GetIngredientsByName(string name)
         {
-            
-                IEnumerable<Ingredient> ingredients = new List<Ingredient>();
-                ingredients = _ingredients.Find(ingredient => true).ToList();
-
-                IEnumerable<Ingredient> ingredientsQuery = from ingredient in ingredients where ingredient.Details.Name == name select ingredient;
-
-                return ingredientsQuery;
-            
+            List<Ingredient> listofIngredients = _ingredients.Find(ingredient => true).ToList();
+            List<Ingredient> result = (from ingredient in listofIngredients where ingredient.Details.Name.ToLower() == name select ingredient).ToList();
+            return result;
         }
             
-
         public Ingredient Create(Ingredient ingredient)
         {
             _ingredients.InsertOne(ingredient);
             return ingredient;
         }
 
-        public void Update(string id, Ingredient ingredientIn)
+        public void Update(string id, Details detailsIn)
         {
             var filter = Builders<Ingredient>.Filter.Eq(s => s.Id, id);
             var update = Builders<Ingredient>.Update
-                .Set(ingredient => ingredient.Details, ingredientIn.Details)
+                .Set(ingredient => ingredient.Details, detailsIn)
                 .CurrentDate(s => s.UpdatedAt);
-
             try
             {
                 _ingredients.UpdateOne(filter, update);
