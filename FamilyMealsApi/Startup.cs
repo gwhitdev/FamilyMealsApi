@@ -8,6 +8,8 @@ using FamilyMealsApi.Models;
 using FamilyMealsApi.Services;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace FamilyMealsApi
 {
@@ -32,11 +34,20 @@ namespace FamilyMealsApi
             services.AddSingleton<IngredientsService>();
 
             services.AddControllers();
-
+            
             services.AddSwaggerGen(options =>
-            {
+            {   
                 options.SwaggerDoc(name: "v1", info: new OpenApiInfo
-                { Title = "Ingredients Service API", Version = "v1" });
+                {
+                    Title = "Ingredients Service API",
+                    Version = "v1",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Gareth Whitley",
+                        Email = "me@garethwhitley.online",
+                        Url = new System.Uri("https://garethwhitley.online")
+                    }
+                });
             });
         }
 
@@ -53,7 +64,7 @@ namespace FamilyMealsApi
             app.UseRouting();
 
             app.UseAuthorization();
-
+            
             app.UseSwagger();
             app.UseSwaggerUI(c =>
            {

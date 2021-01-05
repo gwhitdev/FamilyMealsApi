@@ -6,7 +6,13 @@ namespace FamilyMealsApi.Models
     {
         public bool Success { get; set; }
         public string Message { get; set; }
-        public List<Ingredient> Data { get; set; }
+        public Data Data { get; set; }
         public string Instance { get; set; }
+    }
+
+    public class Data
+    {
+        public List<Ingredient> Ingredients { get; set; }
+
     }
 }

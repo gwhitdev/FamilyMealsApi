@@ -24,10 +24,6 @@ namespace FamilyMealsApi.Services
             var result = _ingredients.Find(ingredient => true).ToList();
             if (result.Count > 0)
             {
-                foreach (var item in result)
-                {
-                    WriteLine(item.Details.Name);
-                }
                 return result;
             }
             else

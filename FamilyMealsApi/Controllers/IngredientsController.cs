@@ -29,7 +29,7 @@ namespace FamilyMealsApi.Controllers
                 {
                     Success = true,
                     Message = "Found ingredients.",
-                    Data = _ingredientsService.Get()
+                    Data = new Data { Ingredients = _ingredientsService.Get() }
                 };
                 return Ok(fetchAllResponse);
             }
@@ -53,7 +53,7 @@ namespace FamilyMealsApi.Controllers
                 {
                     Success = true,
                     Message = "Found named ingredients.",
-                    Data = ingredients
+                    Data = new Data {Ingredients = ingredients}
                 };
                 return Ok(fetchIngredientByNameResponse);
             }
@@ -84,7 +84,7 @@ namespace FamilyMealsApi.Controllers
             {
                 Success = true,
                 Message = $"Found ingredient by ID: {id}.",
-                Data = ingredient,
+                Data = new Data { Ingredients = ingredient }
             };
             return Ok(successResponse);
         }
@@ -155,7 +155,7 @@ namespace FamilyMealsApi.Controllers
             {
                 Success = true,
                 Message = $"Ingredient with Id: {id} found.",
-                Data = ingredient
+                Data = new Data { Ingredients = ingredient }
             };
             return Ok(successResponse); // 200 Success
         }
