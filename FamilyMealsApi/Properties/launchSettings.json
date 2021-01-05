@@ -15,9 +15,10 @@
       "launchUrl": "api/Ingredients",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
+        
       }
     },
-    "IngredientsAPI": {
+    "FamilyMealsApi": {
       "commandName": "Project",
       "dotnetRunMessages": "true",
       "launchBrowser": true,

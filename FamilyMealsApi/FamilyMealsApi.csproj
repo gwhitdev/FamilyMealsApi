@@ -4,7 +4,6 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(RunConfiguration)' == 'IngredientsAPI' " />
   <ItemGroup>
     <PackageReference Include="MongoDB.Driver" Version="2.11.5" />
     <PackageReference Include="MongoDB.Bson" Version="2.11.5" />
