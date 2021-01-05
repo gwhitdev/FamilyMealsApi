@@ -45,7 +45,7 @@ namespace FamilyMealsApi
                     {
                         Name = "Gareth Whitley",
                         Email = "me@garethwhitley.online",
-                        Url = new System.Uri("https://garethwhitley.online")
+                        Url = new System.Uri("https://github.com/gwhitdev")
                     }
                 });
             });
