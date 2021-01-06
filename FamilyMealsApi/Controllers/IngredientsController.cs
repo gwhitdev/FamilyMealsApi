@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using FamilyMealsApi.Services;
 using FamilyMealsApi.Models;
+using System;
 
 namespace FamilyMealsApi.Controllers
 {
@@ -25,37 +26,55 @@ namespace FamilyMealsApi.Controllers
         {
             if (string.IsNullOrWhiteSpace(name))
             {
-                var fetchAllResponse = new ResponseModel
+                var fetchAll = new ResponseModel
                 {
                     Success = true,
                     Message = "Found ingredients.",
                     Data = new Data { Ingredients = _ingredientsService.Get() }
+                    
                 };
-                return Ok(fetchAllResponse);
+                var successResponse = new[]
+                {
+                    fetchAll
+                };
+                return Ok(successResponse);
             }
             else
             {
+
+                
                 name = name.ToLower();
                 List<Ingredient> ingredients = _ingredientsService.GetIngredientsByName(name);
                 if (ingredients == null || ingredients.Count == 0)
                 {
-                    var notFoundResponse = new ResponseModel
+                    var notFound = new ResponseModel
                     {
                         Success = false,
                         Message = "Not found",
                         Data = null,
                         Instance = HttpContext.Request.Path
                     };
+
+                    var notFoundResponse = new[]
+                    {
+                        notFound
+                    };
+                
                     return NotFound(notFoundResponse);
                 }
 
-                var fetchIngredientByNameResponse = new ResponseModel
+                var success = new ResponseModel
                 {
                     Success = true,
                     Message = "Found named ingredients.",
                     Data = new Data {Ingredients = ingredients}
                 };
-                return Ok(fetchIngredientByNameResponse);
+
+                var successResponse = new []
+                {
+                    success
+                };
+                return Ok(successResponse);
             }
         }
 
@@ -70,22 +89,33 @@ namespace FamilyMealsApi.Controllers
            
             if (result == null)
             {
-                var badRequestResponse = new ResponseModel
+                var badRequest = new ResponseModel
                 {
                     Success = false,
                     Message = "Bad Request.",
                     Data = null,
                     Instance = HttpContext.Request.Path
                 };
+
+                var badRequestResponse = new[]
+                {
+                    badRequest
+                };
                 return BadRequest(badRequestResponse);
             }
 
-            var successResponse = new ResponseModel
+            var success = new ResponseModel
             {
                 Success = true,
                 Message = $"Found ingredient by ID: {id}.",
                 Data = new Data { Ingredients = ingredient }
             };
+
+            var successResponse = new[]
+            {
+                success
+            };
+
             return Ok(successResponse);
         }
 
@@ -111,25 +141,37 @@ namespace FamilyMealsApi.Controllers
 
             if (detailsIn == null)
             {
-                var badRequestResponse = new ResponseModel
+                var badRequest = new ResponseModel
                 {
                     Success = false,
                     Message = "The details provided are null.",
                     Data = null,
                     Instance = HttpContext.Request.Path
                 };
+
+                var badRequestResponse = new[]
+                {
+                    badRequest
+                };
+
                 return BadRequest(badRequestResponse); // 400 Bad Request
             }
 
             if (!ModelState.IsValid)
             {
-                var invalidModelStateResponse = new ResponseModel
+                var invalidModelState = new ResponseModel
                 {
                     Success = false,
                     Message = "Not all fields were supplied: {ModelState}",
                     Data = null,
                     Instance = HttpContext.Request.Path
                 };
+
+                var invalidModelStateResponse = new[]
+                {
+                    invalidModelState
+                };
+
                 return BadRequest(invalidModelStateResponse); // 400 Bad Request
             }
 
@@ -137,13 +179,19 @@ namespace FamilyMealsApi.Controllers
 
             if (existing == null)
             {
-                var notFoundResponse = new ResponseModel
+                var notFound = new ResponseModel
                 {
                     Success = false,
                     Message = "Ingredient not found",
                     Data = null,
                     Instance = HttpContext.Request.Path
                 };
+
+                var notFoundResponse = new[]
+                {
+                    notFound
+                };
+
                 return NotFound(notFoundResponse); // 404 Resource Not Found
             }
 
@@ -151,12 +199,19 @@ namespace FamilyMealsApi.Controllers
 
             var updatedIngredient = _ingredientsService.GetById(id);
             List<Ingredient> ingredient = new List<Ingredient>() { updatedIngredient };
-            var successResponse = new ResponseModel
+            
+            var success = new ResponseModel
             {
                 Success = true,
                 Message = $"Ingredient with Id: {id} found.",
                 Data = new Data { Ingredients = ingredient }
             };
+
+            var successResponse = new[]
+            {
+                success
+            };
+
             return Ok(successResponse); // 200 Success
         }
 
@@ -168,23 +223,34 @@ namespace FamilyMealsApi.Controllers
 
             if (ingredient == null)
             {
-                var notFoundResponse = new ResponseModel
+                var notFound = new ResponseModel
                 {
                     Success = false,
                     Message = "Not found",
                     Data = null,
                     Instance = HttpContext.Request.Path
                 };
+
+                var notFoundResponse = new[]
+                {
+                    notFound
+                };
+
                 return NotFound(notFoundResponse);
             }
 
             _ingredientsService.Remove(ingredient.Id);
 
-            var successResponse = new ResponseModel
+            var success = new ResponseModel
             {
                 Success = true,
                 Message = "Successfully deleted ingredient.",
                 Data = null
+            };
+
+            var successResponse = new[]
+            {
+                success
             };
 
             return Ok(successResponse);
