@@ -1,31 +1,31 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Projects\\FamilyMealsApi\\FamilyMealsApi\\FamilyMealsApi.csproj": {}
+    "C:\\Users\\gwhit\\Desktop\\Projects\\FamilyMealsApi\\FamilyMealsApi\\FamilyMealsApi.csproj": {}
   },
   "projects": {
-    "C:\\Projects\\FamilyMealsApi\\FamilyMealsApi\\FamilyMealsApi.csproj": {
+    "C:\\Users\\gwhit\\Desktop\\Projects\\FamilyMealsApi\\FamilyMealsApi\\FamilyMealsApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\FamilyMealsApi\\FamilyMealsApi\\FamilyMealsApi.csproj",
+        "projectUniqueName": "C:\\Users\\gwhit\\Desktop\\Projects\\FamilyMealsApi\\FamilyMealsApi\\FamilyMealsApi.csproj",
         "projectName": "FamilyMealsApi",
-        "projectPath": "C:\\Projects\\FamilyMealsApi\\FamilyMealsApi\\FamilyMealsApi.csproj",
-        "packagesPath": "E:\\Users\\gwhit\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\FamilyMealsApi\\FamilyMealsApi\\obj\\",
+        "projectPath": "C:\\Users\\gwhit\\Desktop\\Projects\\FamilyMealsApi\\FamilyMealsApi\\FamilyMealsApi.csproj",
+        "packagesPath": "C:\\Users\\gwhit\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\gwhit\\Desktop\\Projects\\FamilyMealsApi\\FamilyMealsApi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "E:\\Microsoft\\Xamarin\\NuGet\\"
+          "C:\\Microsoft\\Xamarin\\NuGet\\"
         ],
         "configFilePaths": [
-          "E:\\Users\\gwhit\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "E:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "E:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+          "C:\\Users\\gwhit\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net5.0"
         ],
         "sources": {
-          "E:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -79,7 +79,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "E:\\Program Files\\dotnet\\sdk\\5.0.101\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.102\\RuntimeIdentifierGraph.json"
         }
       }
     }
