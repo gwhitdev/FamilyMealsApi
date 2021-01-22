@@ -9,6 +9,9 @@ using FamilyMealsApi.Services;
 
 namespace FamilyMealsApi.Controllers
 {
+    [Authorize]
+    [ApiController]
+    [Route("api/[controller]")]
     public class UsersController : Controller
     {
         private readonly UserService _userService;
@@ -18,7 +21,6 @@ namespace FamilyMealsApi.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> Create(string authId)
         {
             await _userService.CreateDbUser(authId);
