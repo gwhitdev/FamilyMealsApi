@@ -4,9 +4,14 @@ using Microsoft.AspNetCore.Http;
 using FamilyMealsApi.Services;
 using FamilyMealsApi.Models;
 using System;
+using Microsoft.AspNetCore.Authorization;
+using System.IO;
+using System.Linq;
+using System.Security.Claims;
 
 namespace FamilyMealsApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class IngredientsController : ControllerBase
@@ -24,25 +29,27 @@ namespace FamilyMealsApi.Controllers
         [ProducesResponseType(404)]
         public IActionResult Get(string name)
         {
+            
+            var authId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+
             if (string.IsNullOrWhiteSpace(name))
             {
                 var fetchAll = new ResponseModel
                 {
                     Success = true,
                     Message = "Found ingredients.",
-                    Data = new Data { Ingredients = _ingredientsService.Get() }
+                    Data = new Data { Ingredients = _ingredientsService.Get(authId) }
                     
                 };
+                /*
                 var successResponse = new[]
                 {
                     fetchAll
-                };
-                return Ok(successResponse);
+                };*/
+                return Ok(new[] { fetchAll });
             }
             else
             {
-
-                
                 name = name.ToLower();
                 List<Ingredient> ingredients = _ingredientsService.GetIngredientsByName(name);
                 if (ingredients == null || ingredients.Count == 0)
@@ -69,12 +76,12 @@ namespace FamilyMealsApi.Controllers
                     Message = "Found named ingredients.",
                     Data = new Data {Ingredients = ingredients}
                 };
-
+                /*
                 var successResponse = new []
                 {
                     success
-                };
-                return Ok(successResponse);
+                };*/
+                return Ok(new[] { success });
             }
         }
 
@@ -123,7 +130,9 @@ namespace FamilyMealsApi.Controllers
         [HttpPost]
         public ActionResult<Ingredient> Create([FromBody] Ingredient ingredient)
         {
-            Ingredient added = _ingredientsService.Create(ingredient);
+
+            var authId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            Ingredient added = _ingredientsService.Create(ingredient, authId);
             return CreatedAtRoute(
                 routeName: nameof(GetById),
                 routeValues: new { id = added.Id.ToString() },
