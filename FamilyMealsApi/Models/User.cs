@@ -11,10 +11,22 @@ namespace FamilyMealsApi.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string? UserId { get; set; }
+        public string UserId { get; set; }
         [BsonElement("authId")]
         public string AuthId { get; set; }
         [BsonElement("userIngredients")]
-        public List<Ingredient> UserIngredients { get; set; }
+        //[BsonRepresentation(BsonType.ObjectId)]
+        public List<ObjectId> UserIngredients { get; set; } = new List<ObjectId>();
+        [BsonRepresentation(BsonType.DateTime)]
+        public DateTime CreatedAt { get; set; } = new DateTime();
+        
+
+        
+    }
+
+    public class UserIngredients
+    {
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string IngredientId { get; set; }
     }
 }

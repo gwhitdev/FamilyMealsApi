@@ -12,7 +12,9 @@ namespace FamilyMealsApi.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; internal set; }
         [BsonElement("Owner")]
+        //[BsonRepresentation(BsonType.ObjectId)]
         public string? Owner { get; set; } // Will receive string authId from JWT
+        
         [BsonElement("Details")]
         public Details? Details { get; set; }
 

@@ -27,8 +27,17 @@ namespace FamilyMealsApi.Services
                 AuthId = userId
             };
 
-            await _users.InsertOneAsync(user);
-            return user;
+            try
+            {
+                await _users.InsertOneAsync(user);
+                return user;
+            }
+            catch(MongoException)
+            {
+                return null;
+            }
+            
+            
         }
 
         public bool UpdateUser(string userId, string ingredientId)
@@ -39,6 +48,14 @@ namespace FamilyMealsApi.Services
             var response = _users.UpdateOne(filter, update);
 
             return response.IsAcknowledged;
+
+        }
+
+        public async Task<bool> GetUserById(string authId)
+        {
+            var response = await _users.Find<User>(user => user.AuthId == authId).FirstOrDefaultAsync();
+            if (!string.IsNullOrEmpty(response.UserId)) return true;
+            return false;
 
         }
     }

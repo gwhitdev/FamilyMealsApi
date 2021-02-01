@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using Microsoft.Extensions.Logging;
 
 namespace FamilyMealsApi.Controllers
 {
@@ -17,10 +18,11 @@ namespace FamilyMealsApi.Controllers
     public class IngredientsController : ControllerBase
     {
         private readonly IngredientsService _ingredientsService;
-
-        public IngredientsController(IngredientsService ingredientsService)
+        private readonly ILogger _logger;
+        public IngredientsController(IngredientsService ingredientsService, ILoggerFactory loggerFactory)
         {
             _ingredientsService = ingredientsService;
+            _logger = loggerFactory.CreateLogger<IngredientsController>();
         }
 
         // GET: api/ingredients
@@ -128,15 +130,25 @@ namespace FamilyMealsApi.Controllers
 
         // POST api/ingredients
         [HttpPost]
-        public ActionResult<Ingredient> Create([FromBody] Ingredient ingredient)
+        public ActionResult<string> Create([FromBody] Ingredient ingredient)
         {
-
-            var authId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            Ingredient added = _ingredientsService.Create(ingredient, authId);
+            var tokenId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            string ownerId = "";
+            Ingredient ingredientToCreate = new Ingredient();
+            if (ingredient.Owner == tokenId) // validate owner Id matches with tokenId
+            {
+                ownerId = ingredient.Owner;
+                ingredientToCreate = _ingredientsService.Create(ingredient);
+            }
+            else
+            {
+                return NotFound();
+            }
+            _logger.LogDebug($"{ingredientToCreate}");
             return CreatedAtRoute(
                 routeName: nameof(GetById),
-                routeValues: new { id = added.Id.ToString() },
-                value: added);
+                routeValues: new { id = ingredientToCreate.Id.ToString() },
+                value: ingredientToCreate);
         }
 
         // PUT api/ingredients/5

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using FamilyMealsApi.Models;
 using FamilyMealsApi.Services;
+using System.Security.Claims;
 
 namespace FamilyMealsApi.Controllers
 {
@@ -20,12 +21,23 @@ namespace FamilyMealsApi.Controllers
             _userService = userService;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(string authId)
+        [HttpGet]
+        public async Task<IActionResult> Get()
         {
-            await _userService.CreateDbUser(authId);
+            var authId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
 
-            return View();
+            var response = await _userService.GetUserById(authId);
+            if (response) return Ok(new[] { response });
+            return NotFound(new[] { "false" });
+        }
+
+        [HttpGet("createuser")]
+        public async Task<IActionResult> CreateUser()
+        {
+            var authId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            var response = await _userService.CreateDbUser(authId);
+            if (response != null) return Ok(new[] { response });
+            return BadRequest();
         }
     }
 }

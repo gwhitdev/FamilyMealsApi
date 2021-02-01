@@ -62,9 +62,8 @@ namespace FamilyMealsApi.Services
             return result;
         }
             
-        public Ingredient Create(Ingredient ingredient, string authId)
+        public Ingredient Create(Ingredient ingredient)
         {
-            ingredient.Owner = authId; // Add authId ID from JWT into the ingredient model before submitting to DB
             _ingredients.InsertOne(ingredient);
 
             return ingredient;

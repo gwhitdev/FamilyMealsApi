@@ -11,13 +11,17 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Logging;
+
 namespace FamilyMealsApi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        ILogger _logger;
+        public Startup(IConfiguration configuration, ILoggerFactory loggerFactory)
         {
             Configuration = configuration;
+            
         }
 
         public IConfiguration Configuration { get; }
