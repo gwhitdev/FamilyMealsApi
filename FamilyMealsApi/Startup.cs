@@ -17,8 +17,7 @@ namespace FamilyMealsApi
 {
     public class Startup
     {
-        ILogger _logger;
-        public Startup(IConfiguration configuration, ILoggerFactory loggerFactory)
+        public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
             
