@@ -144,7 +144,7 @@ namespace FamilyMealsApi.Controllers
             {
                 return NotFound();
             }
-            _logger.LogDebug($"{ingredientToCreate}");
+            _logger.LogDebug($"NEW INGREDIENT ID: {ingredientToCreate.Id}");
             return CreatedAtRoute(
                 routeName: nameof(GetById),
                 routeValues: new { id = ingredientToCreate.Id.ToString() },
