@@ -52,6 +52,28 @@ namespace FamilyMealsApi.Controllers
             return NotFound(new[] { responseModel });
         }
 
+        [HttpGet("GetUserIngredients")]
+        public async Task<IActionResult> GetUserIngredients()
+        {
+            var authId = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
+            List<Ingredient> userIngredients = await _userService.GetUserIngredientsAsync(authId);
+
+            ResponseModel responseModel = new ResponseModel();
+
+            if (userIngredients == null || userIngredients.Count == 0)
+            {
+                responseModel.Success = false;
+                responseModel.Message = "User ingredients not found.";
+                responseModel.Data = null;
+                return NotFound(new[] { responseModel });
+            }
+
+            responseModel.Success = true;
+            responseModel.Message = "User ingredients found.";
+            responseModel.Data = new Data { Ingredients = userIngredients };
+            return Ok(new[] { responseModel });
+        }
+
         [HttpGet("CreateUser")]
         public async Task<IActionResult> CreateUser()
         {
