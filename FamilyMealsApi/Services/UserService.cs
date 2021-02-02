@@ -46,9 +46,10 @@ namespace FamilyMealsApi.Services
 
         public async Task<User> UpdateUserAsync(string userId, string ingredientId)
         {
-            var filter = Builders<User>.Filter.Eq(s => s.UserId, userId);
+            var parsedIngredientId = ObjectId.Parse(ingredientId);
+            var filter = Builders<User>.Filter.Eq(u => u.UserId, userId);
             var update = Builders<User>.Update
-                    .AddToSet("userIngredients", ingredientId);
+                    .AddToSet("userIngredients", parsedIngredientId);
             User updatedUser = await _users.FindOneAndUpdateAsync(filter, update);
             return updatedUser;
         }
