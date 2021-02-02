@@ -13,6 +13,7 @@ namespace FamilyMealsApi.Models
     public class Data
     {
         public List<Ingredient> Ingredients { get; set; }
+        public User User { get; set; }
 
     }
 }

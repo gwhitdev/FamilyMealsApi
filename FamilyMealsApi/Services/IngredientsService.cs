@@ -19,9 +19,11 @@ namespace FamilyMealsApi.Services
             _ingredients = database.GetCollection<Ingredient>(settings.IngredientsCollectionName);
         }
 
-        public List<Ingredient> Get()
+        public List<Ingredient> Get(string authId)
         {
-            var result = _ingredients.Find(ingredient => true).ToList();
+            var result = _ingredients.Find(ingredient => true).ToList(); //CHANGE TO USER SERVICE, SEARCH FOR ID AND THEN POPULATE THE INGREDIENTS?
+
+            // TODO: FILTER DB RESULTS AGAINST AUTHID FROM JWT
             if (result.Count > 0)
             {
                 return result;
@@ -63,6 +65,7 @@ namespace FamilyMealsApi.Services
         public Ingredient Create(Ingredient ingredient)
         {
             _ingredients.InsertOne(ingredient);
+
             return ingredient;
         }
 

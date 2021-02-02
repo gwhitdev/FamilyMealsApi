@@ -10,6 +10,8 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Logging;
 
 namespace FamilyMealsApi
 {
@@ -18,6 +20,7 @@ namespace FamilyMealsApi
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            
         }
 
         public IConfiguration Configuration { get; }
@@ -25,6 +28,16 @@ namespace FamilyMealsApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = $"https://{Configuration["Auth0:Domain"]}";
+                options.Audience = Configuration["Auth0:Audience"];
+            });
+
             services.Configure<IngredientsDatabaseSettings>(
                 Configuration.GetSection(nameof(IngredientsDatabaseSettings)));
 
@@ -32,6 +45,7 @@ namespace FamilyMealsApi
             sp.GetRequiredService<IOptions<IngredientsDatabaseSettings>>().Value);
 
             services.AddSingleton<IngredientsService>();
+            services.AddSingleton<UserService>();
 
             services.AddControllers();
             
@@ -62,7 +76,7 @@ namespace FamilyMealsApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
             
             app.UseSwagger();

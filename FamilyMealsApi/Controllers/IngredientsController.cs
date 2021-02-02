@@ -4,18 +4,25 @@ using Microsoft.AspNetCore.Http;
 using FamilyMealsApi.Services;
 using FamilyMealsApi.Models;
 using System;
+using Microsoft.AspNetCore.Authorization;
+using System.IO;
+using System.Linq;
+using System.Security.Claims;
+using Microsoft.Extensions.Logging;
 
 namespace FamilyMealsApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class IngredientsController : ControllerBase
     {
         private readonly IngredientsService _ingredientsService;
-
-        public IngredientsController(IngredientsService ingredientsService)
+        private readonly ILogger _logger;
+        public IngredientsController(IngredientsService ingredientsService, ILoggerFactory loggerFactory)
         {
             _ingredientsService = ingredientsService;
+            _logger = loggerFactory.CreateLogger<IngredientsController>();
         }
 
         // GET: api/ingredients
@@ -24,25 +31,27 @@ namespace FamilyMealsApi.Controllers
         [ProducesResponseType(404)]
         public IActionResult Get(string name)
         {
+            
+            var authId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+
             if (string.IsNullOrWhiteSpace(name))
             {
                 var fetchAll = new ResponseModel
                 {
                     Success = true,
                     Message = "Found ingredients.",
-                    Data = new Data { Ingredients = _ingredientsService.Get() }
+                    Data = new Data { Ingredients = _ingredientsService.Get(authId) }
                     
                 };
+                /*
                 var successResponse = new[]
                 {
                     fetchAll
-                };
-                return Ok(successResponse);
+                };*/
+                return Ok(new[] { fetchAll });
             }
             else
             {
-
-                
                 name = name.ToLower();
                 List<Ingredient> ingredients = _ingredientsService.GetIngredientsByName(name);
                 if (ingredients == null || ingredients.Count == 0)
@@ -69,12 +78,12 @@ namespace FamilyMealsApi.Controllers
                     Message = "Found named ingredients.",
                     Data = new Data {Ingredients = ingredients}
                 };
-
+                /*
                 var successResponse = new []
                 {
                     success
-                };
-                return Ok(successResponse);
+                };*/
+                return Ok(new[] { success });
             }
         }
 
@@ -121,13 +130,25 @@ namespace FamilyMealsApi.Controllers
 
         // POST api/ingredients
         [HttpPost]
-        public ActionResult<Ingredient> Create([FromBody] Ingredient ingredient)
+        public ActionResult<string> Create([FromBody] Ingredient ingredient)
         {
-            Ingredient added = _ingredientsService.Create(ingredient);
+            var tokenId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            string ownerId = "";
+            Ingredient ingredientToCreate = new Ingredient();
+            if (ingredient.Owner == tokenId) // validate owner Id matches with tokenId
+            {
+                ownerId = ingredient.Owner;
+                ingredientToCreate = _ingredientsService.Create(ingredient);
+            }
+            else
+            {
+                return NotFound();
+            }
+            _logger.LogDebug($"NEW INGREDIENT ID: {ingredientToCreate.Id}");
             return CreatedAtRoute(
                 routeName: nameof(GetById),
-                routeValues: new { id = added.Id.ToString() },
-                value: added);
+                routeValues: new { id = ingredientToCreate.Id.ToString() },
+                value: ingredientToCreate);
         }
 
         // PUT api/ingredients/5
