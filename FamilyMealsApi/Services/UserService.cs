@@ -28,9 +28,8 @@ namespace FamilyMealsApi.Services
         {
             var user = new User
             {
-                //UserId = null,
-                //UserIngredients = null,
-                AuthId = userId
+                AuthId = userId,
+                CreatedAt = DateTime.Now
             };
 
             try

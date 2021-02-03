@@ -18,7 +18,7 @@ namespace FamilyMealsApi.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public List<string> UserIngredients { get; set; } = new List<string>();
         [BsonRepresentation(BsonType.DateTime)]
-        public DateTime CreatedAt { get; set; } = new DateTime();
+        public DateTime CreatedAt { get; set; }
         
 
         

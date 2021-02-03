@@ -24,7 +24,22 @@ namespace FamilyMealsApi.Controllers
             _userService = userService;
             _logger = loggerFactory.CreateLogger<UsersController>();
         }
+        [HttpGet("CreateUser")]
+        public async Task<IActionResult> CreateUser()
+        {
+            var authId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            var user = await _userService.CreateDbUser(authId);
 
+            var success = new ResponseModel
+            {
+                Success = true,
+                Message = "User created.",
+                Data = new Data { User = user }
+            };
+
+            if (user != null) return Ok(new[] { success });
+            return BadRequest();
+        }
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -74,23 +89,6 @@ namespace FamilyMealsApi.Controllers
             return Ok(new[] { responseModel });
         }
 
-        [HttpGet("CreateUser")]
-        public async Task<IActionResult> CreateUser()
-        {
-            var authId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var user = await _userService.CreateDbUser(authId);
-
-            var success = new ResponseModel
-            {
-                Success = true,
-                Message = "User created.",
-                Data = new Data { User = user }
-            };
-
-            if (user != null) return Ok(new[] { success });
-            return BadRequest();
-        }
-
         [HttpPut("UpdateUserIngredientList")]
         public async Task<IActionResult> UpdateUserIngredientList(User user)
         {
@@ -117,5 +115,6 @@ namespace FamilyMealsApi.Controllers
 
             return Ok(new[] { responseModel });
         }
+
     }
 }
