@@ -16,7 +16,7 @@ namespace FamilyMealsApi.Models
         public string AuthId { get; set; }
         [BsonElement("userIngredients")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public List<string> UserIngredients { get; set; }
+        public List<string> UserIngredients { get; set; } = new List<string>();
         [BsonRepresentation(BsonType.DateTime)]
         public DateTime CreatedAt { get; set; } = new DateTime();
         
