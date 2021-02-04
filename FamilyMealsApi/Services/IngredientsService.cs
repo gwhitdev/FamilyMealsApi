@@ -4,19 +4,25 @@ using FamilyMealsApi.Models;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using System;
+using System.Threading.Tasks;
 using static System.Console;
+using Microsoft.Extensions.Logging;
 
 namespace FamilyMealsApi.Services
 {
     public class IngredientsService
     {
         private readonly IMongoCollection<Ingredient> _ingredients;
+        private readonly IMongoCollection<User> _users;
+        private readonly ILogger _logger;
 
-        public IngredientsService(IIngredientsDatabaseSettings settings)
+        public IngredientsService(IIngredientsDatabaseSettings settings, ILoggerFactory loggerFactory)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _ingredients = database.GetCollection<Ingredient>(settings.IngredientsCollectionName);
+            _users = database.GetCollection<User>(settings.UsersCollectionName);
+            _logger = loggerFactory.CreateLogger<IngredientsService>();
         }
 
         public List<Ingredient> Get(string authId)
@@ -85,10 +91,18 @@ namespace FamilyMealsApi.Services
             }
         }
 
-        public void Remove(Ingredient ingredientIn) =>
-            _ingredients.DeleteOne(ingredient => ingredient.Id == ingredientIn.Id);
+        public async Task<bool> Remove(Ingredient ingredientIn)
+        {
+            DeleteResult removed = await _ingredients.DeleteOneAsync(ingredient => ingredient.Id == ingredientIn.Id);
+            return removed.DeletedCount == 1;
+        }
+            
 
-        public void Remove(string id) =>
-            _ingredients.DeleteOne(ingredient => ingredient.Id == id);
+        public async Task<bool> Remove(string id)
+        {
+            DeleteResult removed = await _ingredients.DeleteOneAsync(ingredient => ingredient.Id == id);
+            return removed.DeletedCount == 1;
+        }
+            
     }
 }

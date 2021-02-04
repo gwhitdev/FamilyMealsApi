@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Text.Json;
 using System.Text;
 using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace FamilyMealsApi.Services
 {
@@ -16,12 +17,14 @@ namespace FamilyMealsApi.Services
     {
         private readonly IMongoCollection<User> _users;
         private readonly IMongoCollection<Ingredient> _ingredients;
-        public UserService(IIngredientsDatabaseSettings settings)
+        private readonly ILogger _logger;
+        public UserService(IIngredientsDatabaseSettings settings, ILoggerFactory loggerFactory)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _users = database.GetCollection<User>(settings.UsersCollectionName);
             _ingredients = database.GetCollection<Ingredient>(settings.IngredientsCollectionName);
+            _logger = loggerFactory.CreateLogger<UserService>();
         }
 
         public async Task<User> CreateDbUser(string userId)
@@ -56,15 +59,23 @@ namespace FamilyMealsApi.Services
 
         public async Task<List<Ingredient>> GetUserIngredientsAsync(string authId)
         {
+            _logger.LogDebug($"AUTH ID = {authId}");
+            _logger.LogDebug("GETTING USER...");
             var user = await _users.Find(user => user.AuthId == authId).FirstAsync();
+            
+            _logger.LogDebug($"NUMBER OF INGREDIENTS FOUND: {user.UserIngredients.Count}");
+            for (var i = 0; i < user.UserIngredients.Count; i++)
+            {
+                _logger.LogDebug($"{user.UserIngredients[i]}");
+            }
             List<Ingredient> populatedIngredients = new List<Ingredient>();
 
             if (user.UserIngredients.Count > 0)
             {
                 foreach (var ingredientId in user.UserIngredients)
                 {
-                    var getIngredient = await _ingredients.FindAsync(i => i.Id == ingredientId);
-                    Ingredient foundIngredient = getIngredient.First();
+                    IAsyncCursor<Ingredient> getIngredient = await _ingredients.FindAsync(i => i.Id == ingredientId);
+                    Ingredient foundIngredient = getIngredient.FirstOrDefault();
                     populatedIngredients.Add(foundIngredient);
                 }
             }
@@ -82,6 +93,19 @@ namespace FamilyMealsApi.Services
             return updatedUser;
         }
 
+        public async Task<User> RemoveIngredientFromUser(string ownerId, string ingredientId)
+        {
+            _logger.LogDebug($"REMOVING INGREDIENT {ingredientId} FROM USER {ownerId} INGREDIENTS...");
+            var ingredientToRemove = ObjectId.Parse(ingredientId);
+            _logger.LogDebug($"PARSED ID = {ingredientToRemove}");
+
+
+            var filter = Builders<User>.Filter.Eq(u => u.AuthId, ownerId);
+            var update = Builders<User>.Update.Pull(u => u.UserIngredients, ingredientId);
+            var updatedUser = await _users.FindOneAndUpdateAsync(filter, update);
+            _logger.LogDebug($"REMOVED ELEMENT FROM USER INGREDIENTS? = {updatedUser.UserIngredients.Count}");
+            return updatedUser;
+        }
         
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace FamilyMealsApi.Controllers
@@ -18,10 +19,12 @@ namespace FamilyMealsApi.Controllers
     public class IngredientsController : ControllerBase
     {
         private readonly IngredientsService _ingredientsService;
+        private readonly UserService _userService;
         private readonly ILogger _logger;
-        public IngredientsController(IngredientsService ingredientsService, ILoggerFactory loggerFactory)
+        public IngredientsController(IngredientsService ingredientsService, UserService userService, ILoggerFactory loggerFactory)
         {
             _ingredientsService = ingredientsService;
+            _userService = userService;
             _logger = loggerFactory.CreateLogger<IngredientsController>();
         }
 
@@ -132,13 +135,15 @@ namespace FamilyMealsApi.Controllers
         [HttpPost]
         public ActionResult<string> Create([FromBody] Ingredient ingredient)
         {
-            var tokenId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            string ownerId = "";
+            var authId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            //string ownerId = "";
             Ingredient ingredientToCreate = new Ingredient();
-            if (ingredient.Owner == tokenId) // validate owner Id matches with tokenId
+            if (ingredient.Owner == authId) // validate owner Id matches with tokenId
             {
-                ownerId = ingredient.Owner;
+                //ownerId = ingredient.Owner;
+                _logger.LogDebug("TRYING TO CREATE INGREDIENT...");
                 ingredientToCreate = _ingredientsService.Create(ingredient);
+                _logger.LogDebug($"INGREDIENT CREATED: {ingredientToCreate.Id}");
             }
             else
             {
@@ -238,44 +243,48 @@ namespace FamilyMealsApi.Controllers
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public ActionResult<IEnumerable<ResponseModel>> Delete(string id)
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> Delete(string id)
         {
-            var ingredient = _ingredientsService.GetById(id);
-
-            if (ingredient == null)
+            var responseModel = new ResponseModel();
+            var fetchedIngredient = _ingredientsService.GetById(id);
+            var ownerId = fetchedIngredient.Owner;
+            _logger.LogDebug($"USER ID: {ownerId}");
+            if (fetchedIngredient == null)
             {
-                var notFound = new ResponseModel
-                {
-                    Success = false,
-                    Message = "Not found",
-                    Data = null,
-                    Instance = HttpContext.Request.Path
-                };
-
-                var notFoundResponse = new[]
-                {
-                    notFound
-                };
-
-                return NotFound(notFoundResponse);
+                responseModel.Success = false;
+                responseModel.Message = "Ingredient not found.";
+                responseModel.Data = null;
+                responseModel.Instance = HttpContext.Request.Path;
+                return NotFound(new[] { responseModel });
             }
 
-            _ingredientsService.Remove(ingredient.Id);
-
-            var success = new ResponseModel
+            bool ingredientRemoved = await _ingredientsService.Remove(fetchedIngredient.Id);
+            _logger.LogDebug($"INGREDIENT REMOVED: {ingredientRemoved}");
+            User updatedUser = new User();
+            if (ingredientRemoved)
             {
-                Success = true,
-                Message = "Successfully deleted ingredient.",
-                Data = null
-            };
+                _logger.LogDebug("ATTEMPTING TO REMOVE INGREDIENT FRMO USER INGREDIENTS...");
+                updatedUser = await _userService.RemoveIngredientFromUser(ownerId, id);
+                _logger.LogDebug($"updatedUser: {updatedUser.UserId}");
+                _logger.LogDebug($"updatedUserIngredients.Count = {updatedUser.UserIngredients.Count}");
 
-            var successResponse = new[]
+            }
+
+            if(!ingredientRemoved || updatedUser.UserIngredients.Contains(id))
             {
-                success
-            };
+                responseModel.Success = false;
+                responseModel.Message = "Something went wrong.";
+                responseModel.Data = null;
+                return BadRequest(new[] { responseModel });
+            }
 
-            return Ok(successResponse);
-            
+            responseModel.Success = true;
+            responseModel.Message = "Successfully deleted ingredient.";
+            responseModel.Data = null;
+            return Ok(new[] { responseModel });
         }
     }
 }
