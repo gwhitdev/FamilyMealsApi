@@ -249,41 +249,46 @@ namespace FamilyMealsApi.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             var responseModel = new ResponseModel();
-            var fetchedIngredient = _ingredientsService.GetById(id);
-            var ownerId = fetchedIngredient.Owner;
+            var ingredientConfirmedToExist = _ingredientsService.GetById(id);
+            var ownerId = ingredientConfirmedToExist.Owner;
             _logger.LogDebug($"USER ID: {ownerId}");
-            if (fetchedIngredient == null)
+
+            if (ingredientConfirmedToExist == null)
             {
                 responseModel.Success = false;
                 responseModel.Message = "Ingredient not found.";
-                responseModel.Data = null;
+                responseModel.Data = new Data { };
                 responseModel.Instance = HttpContext.Request.Path;
                 return NotFound(new[] { responseModel });
             }
 
-            bool ingredientRemoved = await _ingredientsService.Remove(fetchedIngredient.Id);
-            _logger.LogDebug($"INGREDIENT REMOVED: {ingredientRemoved}");
-            User updatedUser = new User();
+            bool ingredientRemoved = await _ingredientsService.Remove(ingredientConfirmedToExist.Id);
+            _logger.LogDebug($"INGREDIENT REMOVED FROM DATABASE: {ingredientRemoved}");
+            //User updatedUser = new User();
+            bool updatedUser = false;
             if (ingredientRemoved)
             {
-                _logger.LogDebug("ATTEMPTING TO REMOVE INGREDIENT FRMO USER INGREDIENTS...");
-                updatedUser = await _userService.RemoveIngredientFromUser(ownerId, id);
-                _logger.LogDebug($"updatedUser: {updatedUser.UserId}");
-                _logger.LogDebug($"updatedUserIngredients.Count = {updatedUser.UserIngredients.Count}");
+                _logger.LogDebug("ATTEMPTING TO REMOVE INGREDIENT FROM USER INGREDIENTS...");
+                updatedUser = _userService.RemoveIngredientFromUser(ownerId, id);
+                //_logger.LogDebug($"updatedUser: {updatedUser.UserId}");
+                //_logger.LogDebug($"updatedUserIngredients.Count = {updatedUser.UserIngredients.Count}");
+                _logger.LogDebug($"User updated?: {updatedUser}");
 
             }
-
-            if(!ingredientRemoved || updatedUser.UserIngredients.Contains(id))
+            _logger.LogDebug($"REMOVED INGREDIENT TRUE?: {ingredientRemoved}");
+            //_logger.LogDebug($"USER CONTAINS INGREDIENT ID?: {updatedUser.UserIngredients.Contains(id)}");
+            if (!ingredientRemoved || !updatedUser)
             {
                 responseModel.Success = false;
                 responseModel.Message = "Something went wrong.";
-                responseModel.Data = null;
+                responseModel.Data = new Data { };
+                responseModel.Instance = HttpContext.Request.Path;
                 return BadRequest(new[] { responseModel });
             }
 
             responseModel.Success = true;
             responseModel.Message = "Successfully deleted ingredient.";
-            responseModel.Data = null;
+            responseModel.Data = new Data { };
             return Ok(new[] { responseModel });
         }
     }

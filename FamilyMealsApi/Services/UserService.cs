@@ -93,7 +93,7 @@ namespace FamilyMealsApi.Services
             return updatedUser;
         }
 
-        public async Task<User> RemoveIngredientFromUser(string ownerId, string ingredientId)
+        public bool RemoveIngredientFromUser(string ownerId, string ingredientId)
         {
             _logger.LogDebug($"REMOVING INGREDIENT {ingredientId} FROM USER {ownerId} INGREDIENTS...");
             var ingredientToRemove = ObjectId.Parse(ingredientId);
@@ -102,9 +102,9 @@ namespace FamilyMealsApi.Services
 
             var filter = Builders<User>.Filter.Eq(u => u.AuthId, ownerId);
             var update = Builders<User>.Update.Pull(u => u.UserIngredients, ingredientId);
-            var updatedUser = await _users.FindOneAndUpdateAsync(filter, update);
-            _logger.LogDebug($"REMOVED ELEMENT FROM USER INGREDIENTS? = {updatedUser.UserIngredients.Count}");
-            return updatedUser;
+            var updatedUser = _users.UpdateOne(filter, update);
+            var success = updatedUser.IsAcknowledged;
+            return success;
         }
         
     }
